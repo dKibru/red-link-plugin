@@ -1,0 +1,10 @@
+red-link {
+    display: inline;
+    cursor: pointer;
+    user-select: none;
+    /* color: red !important; */
+}
+
+/* red-link[data-page-exists]:not([data-page-exists="-"]) {
+    color: blue;
+} */

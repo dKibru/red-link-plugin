@@ -1,0 +1,13 @@
+{
+  "name": "my-custom-block",
+  "version": "1.0.0",
+  "description": "My Custom Block for Gutenberg",
+  "main": "red-link-block.js",
+  "scripts": {
+    "build": "export NODE_OPTIONS=--openssl-legacy-provider && wp-scripts build",
+    "start": "export NODE_OPTIONS=--openssl-legacy-provider && wp-scripts start"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^12.0.0"
+  }
+}
