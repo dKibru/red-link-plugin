@@ -78,6 +78,23 @@ class Red_Link_Admin
             $this->version,
             false
         );
+
+        wp_enqueue_script(
+            "kibru/red-link-formatter", // Handle
+            plugin_dir_url(__FILE__) . "/js/admin-script.js",
+            [
+                "kibru/red-link",
+                "wp-blocks",
+                "wp-element",
+                "wp-editor",
+                "wp-components",
+                "wp-dom-ready",
+            ], // Dependencies, if any
+            $this->version, // Version number
+            [
+                "strategy" => "defer",
+            ]
+        );
     }
 
     function save_custom_metadata($post_id, $post, $update)
@@ -91,10 +108,69 @@ class Red_Link_Admin
             return;
         }
 
-        $red_link_id = $_GET["red_link_id"];
-        $meta_key = "red_link_id";
-        $meta_value = $red_link_id;
+        $red_link_id = $_GET["red_link_id"] ?? "";
 
-        add_post_meta($post_id, $meta_key, $meta_value, true);
+        if ($red_link_id !== "") {
+            $meta_key = "red_link_id";
+            $meta_value = $red_link_id;
+
+            add_post_meta($post_id, $meta_key, $meta_value, true);
+        }
+    }
+
+    function register_custom_rest_routes()
+    {
+        register_rest_route("red-link/v1", "/check-page-exists", [
+            "methods" => "GET",
+            "callback" => [$this, "check_page_exists_callback"],
+            "permission_callback" => function () {
+                return true;
+                return current_user_can("manage_options");
+            },
+            "args" => [
+                "red_link_id" => [
+                    "required" => true,
+                    "validate_callback" => function ($param, $request, $key) {
+                        return is_string($param);
+                    },
+                    // "sanitize_callback" => "absint",
+                ],
+            ],
+        ]);
+    }
+
+    function check_page_exists_callback($request)
+    {
+        // Get the post ID from the request
+        $red_link_id = $request->get_param("red_link_id");
+
+        $post_type = "post";
+        if (is_plugin_active("betterdocs/betterdocs.php")) {
+            $post_type = "docs";
+        }
+
+        $args = [
+            "post_type" => [$post_type, "page"], // Specify the post types to search
+            "meta_query" => [
+                [
+                    "key" => "red_link_id", // Replace 'your_meta_key' with the actual meta key
+                    "value" => $red_link_id, // Value to search for
+                    "compare" => "=", // Exact match
+                ],
+            ],
+            "posts_per_page" => 1, // Limit to 1 post
+        ];
+
+        $posts = get_posts($args);
+
+        $post_exists = $posts ? true : false;
+
+        // Return the result
+        return rest_ensure_response(["exists" => $post_exists]);
+    }
+
+    function format_custom_block($block_content, $block)
+    {
+        return $block_content;
     }
 }

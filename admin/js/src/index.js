@@ -2,7 +2,6 @@ import { registerFormatType, toggleFormat } from "@wordpress/rich-text";
 import { RichTextToolbarButton } from "@wordpress/block-editor";
 import { BlockControls } from "@wordpress/block-editor";
 import { ToolbarGroup, ToolbarButton } from "@wordpress/components";
-import "./style.css";
 
 const redLinkIcon = (
   <svg
@@ -64,7 +63,9 @@ function slugify(text) {
     .replace(/^-+/, "") // Trim - from start of text
     .replace(/-+$/, ""); // Trim - from end of text
 }
-const MyCustomButton = ({ isActive, onChange, value }) => {
+const MyCustomButton = (props) => {
+  const { isActive, onChange, value } = props;
+  console.log({ props });
   const previousAttributes = value.activeFormats.find(
     (format) => format.type === "kibru/red-link",
   );
@@ -74,9 +75,6 @@ const MyCustomButton = ({ isActive, onChange, value }) => {
   const previousUrl = previousAttributes
     ? previousAttributes.attributes.url
     : slugify(selectedText + Math.random(1000, 9999));
-  // const previousData = previousAttributes
-  //   ? previousAttributes.attributes.data
-  //   : "-";
 
   return (
     <BlockControls>
@@ -90,7 +88,7 @@ const MyCustomButton = ({ isActive, onChange, value }) => {
                 type: "kibru/red-link",
                 attributes: {
                   url: previousUrl,
-                  // data: previousData,
+                  // class: "exists",
                 },
               }),
             );
@@ -109,6 +107,5 @@ registerFormatType("kibru/red-link", {
   edit: MyCustomButton,
   attributes: {
     url: "href",
-    // data: "data-page-exists",
   },
 });

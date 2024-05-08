@@ -181,6 +181,20 @@ class Red_Link
             10,
             3
         );
+
+        $this->loader->add_action(
+            "rest_api_init",
+            $plugin_admin,
+            "register_custom_rest_routes"
+        );
+
+        $this->loader->add_filter(
+            "render_block_kibru/red-link",
+            $plugin_admin,
+            "format_custom_block",
+            10,
+            2
+        );
     }
 
     /**

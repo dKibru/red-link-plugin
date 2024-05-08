@@ -102,6 +102,10 @@ class Red_Link_Public
         // Extract data-page-exists attribute value
         preg_match('/data-page-exists="([^"]*)"/', $matches[1], $attr_matches);
         preg_match('/href="([^"]*)"/', $matches[1], $href_matches);
+        $post_type = "post";
+        if (is_plugin_active("betterdocs/betterdocs.php")) {
+            $post_type = "docs";
+        }
 
         // $page_exists = isset($attr_matches[1]) ? $attr_matches[1] : "";
         $href = isset($href_matches[1]) ? $href_matches[1] : "#";
@@ -111,11 +115,8 @@ class Red_Link_Public
         $link = $href;
 
         if (!empty($href)) {
-            // Get post object by path (assuming href is a relative path)
-            // $post = get_page_by_path($href, OBJECT, ["post", "page"]);
-            // return $href;
             $args = [
-                "post_type" => ["post", "page"], // Specify the post types to search
+                "post_type" => [$post_type, "page"], // Specify the post types to search
                 "meta_query" => [
                     [
                         "key" => "red_link_id", // Replace 'your_meta_key' with the actual meta key
@@ -138,8 +139,9 @@ class Red_Link_Public
         if (current_user_can("edit_posts") && $color == "red") {
             // Update $href to a link for creating the page
             $slug = $this->slugify($matches[2]);
+
             $link = admin_url(
-                "post-new.php?post_type=page&post_title=$slug&red_link_id=$href"
+                "post-new.php?post_type=$post_type&post_title=$slug&red_link_id=$href"
             );
         }
 
